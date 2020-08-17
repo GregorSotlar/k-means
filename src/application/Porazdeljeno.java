@@ -157,8 +157,6 @@ public class Porazdeljeno {
 	      return noviCentri;
 	  }
 	
-	  
-
 	  	/* Metoda sešteva razdalje med starimi in novimi centri s pomočjo metode dobiRazdaljo */
 	  public static double dobiRazdaljoCenters(List<TockaXY> oldCenters, List<TockaXY> noviCentri) {
 	      double accumDist = 0;
@@ -250,7 +248,7 @@ public class Porazdeljeno {
 		
 	    id = MPI.COMM_WORLD.Rank();
 	    size = MPI.COMM_WORLD.Size();
-		// Pot do datoteke z podatki
+		// Pot do datoteke z podatki. KAKO POSLATI PREKO VM argumente?
 //	      String inputFile = args[0];
 	   
 			
@@ -272,13 +270,13 @@ public class Porazdeljeno {
 	    int stElNaProces = podatki.length; // število elemntov na proces * TODO = vsakemu en cluster za računat *
 	    float[] sendBuffer = izListVFloat(dataset); //
 //	    float[] sendBufferC = nakljucniCentri; //
-//	    int[] sendBufferK = ; //
+
 	    //sendBuffer = new int [stElNaProces * size]; // [(število elementov na proces) * (število procesov)]
 	    System.out.println("sendBuffer pred posredovanjem: " + Arrays.toString(sendBuffer));
 	    
 	    float receiveBuffer[] = new float [stElNaProces]; // [število elemntov na proces]
 //	    float receiveBufferC[] = new float [k]; // [število elemntov na proces]
-//	    int receiveBufferK[] = new int [1]; // [število elemntov na proces]
+
 
 	    float New_receiveBuffer[] = new float [stElNaProces*3]; // to je za root v gather metod, in je array vseh rešitev
 		
@@ -298,17 +296,14 @@ public class Porazdeljeno {
 			System.out.println("Tukaj " + id + " so nakljucni centri: ");
 			for (int i = 0; i < izFloatVList(nakljucniCentri).size(); i++) {
 				System.out.print(izFloatVList(nakljucniCentri).get(i));
-
 			}
 			System.out.println(" ");
 			System.out.println("Tukaj " + id + " so podatki ");
 			for (int i = 0; i < izFloatVList(podatki).size(); i++) {
 				System.out.print(izFloatVList(podatki).get(i));
-			}
-			
+			}	
 			System.out.println(" ");
 			System.out.println("k: " + k);
-			
 		}
 		
 		// (array kjer so vsi podatki in se jih pošlje v New_receiveBuffer,_,_,_, New_receiveBuffer je tisti ki ga root potegne, _,_,_,_ )
@@ -318,16 +313,7 @@ public class Porazdeljeno {
 		if(id==root) {			
 			System.out.println(" Končano New_receiveBuffer je: " );
 			System.out.println(Arrays.toString(New_receiveBuffer));		
-		}
-		
+		}	
 		MPI.Finalize();
-
 	}
 }
-
-
-/* TODO
-* glavni program kliče Porazdeljeno.java in posreduje args v klicu (v main args spakiraš v String[] parametri; in tukaj kličeš mein samo da args = paramtri)
-* 
-
-*/
