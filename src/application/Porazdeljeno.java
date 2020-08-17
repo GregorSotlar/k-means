@@ -277,9 +277,10 @@ public class Porazdeljeno {
 	    float receiveBuffer[] = new float [stElNaProces]; // [število elemntov na proces]
 //	    float receiveBufferC[] = new float [k]; // [število elemntov na proces]
 
-
-	    float New_receiveBuffer[] = new float [stElNaProces*3]; // to je za root v gather metod, in je array vseh rešitev
+	    float New_receiveBuffer[] = new float [stElNaProces*4]; // to je za root v gather metod, in je array vseh rešitev
 		
+	    startTime = System.currentTimeMillis();
+	    
 		MPI.COMM_WORLD.Scatter(sendBuffer, 0, stElNaProces, MPI.FLOAT, receiveBuffer, 0, stElNaProces, MPI.FLOAT, root);
 //		MPI.COMM_WORLD.Scatter(sendBufferC, 0, stElNaProces, MPI.FLOAT, receiveBufferC, 0, stElNaProces, MPI.FLOAT, root);
 //		MPI.COMM_WORLD.Scatter(sendBufferK, 0, stElNaProces, MPI.INT, receiveBufferK, 0, stElNaProces, MPI.INT, root);
@@ -309,11 +310,16 @@ public class Porazdeljeno {
 		// (array kjer so vsi podatki in se jih pošlje v New_receiveBuffer,_,_,_, New_receiveBuffer je tisti ki ga root potegne, _,_,_,_ )
 		MPI.COMM_WORLD.Gather(receiveBuffer, 0, stElNaProces, MPI.FLOAT, New_receiveBuffer, 0, stElNaProces, MPI.FLOAT, root);
 		
+	 	
 		// sprintat rezultat
 		if(id==root) {			
 			System.out.println(" Končano New_receiveBuffer je: " );
-			System.out.println(Arrays.toString(New_receiveBuffer));		
+			System.out.println(Arrays.toString(New_receiveBuffer));	
+			stopTime = System.currentTimeMillis();
+		 	long eTime = stopTime - startTime;
+		 	System.out.println("Porazdeljeno čas: " + eTime );
+			MPI.Finalize();
 		}	
-		MPI.Finalize();
+		
 	}
 }
