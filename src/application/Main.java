@@ -89,9 +89,7 @@ public void start(Stage primaryStage) {
       public float getY() {
     	  return y;
       }
-      
-          
-	 
+      	 
 	 /* Evklidska razdalja med dvemi točkami */  
 	 private double dobiRazdaljo(TockaXY other) {
 	     return Math.sqrt(Math.pow(this.x - other.x, 2)
@@ -148,7 +146,6 @@ public void start(Stage primaryStage) {
     
   }
 
-
       /* Dobi pot do vhodne datoteke in vrne seznam točk. BufferedReader prebere vsebino datoteke in jo vstavi v String line, ki ga razedlimo z ","
    	 	in pretvorimo v tokene (torej en token je levo od vejice drugi desno) katere uporabimo za ustavrit novo instanco TockaXY
    	 	iz njih ustvarit seznam ki bo vrnjen (dataset). */
@@ -199,28 +196,28 @@ public void start(Stage primaryStage) {
 	 na koncu (3. for loop) še v zadnjem for loopu za vsak cluster v arrayu clusters izračunamo mean in ga dodamo v noviCentri*/
   public static List<TockaXY> noviCentri(List<TockaXY> dataset, List<TockaXY> centers) {
 		
-	  List<List<TockaXY>> clusters = new ArrayList<>(centers.size());
+	  List<List<TockaXY>> clusters = new ArrayList<>(centers.size());        
       for (int i = 0; i < centers.size(); i++) {
           clusters.add(new ArrayList<TockaXY>());
       }
+      System.out.println("\n" + "noviCentri 2.for loop: ");
       for (TockaXY data : dataset) {
           int index = data.najblizjaTIndex(centers);
-          clusters.get(index).add(data);
-          
+          clusters.get(index).add(data);         
+          System.out.print(centers);      
       }
       List<TockaXY> noviCentri = new ArrayList<>(centers.size());
-//		System.out.println("Novi centri pred funkcijo: " + noviCentri);	
 
+      System.out.println("\n" + "Novi centri v cluster 3. for loop: ");	
       for (List<TockaXY> cluster : clusters) {
           noviCentri.add(TockaXY.povprecje(cluster));
-          System.out.println("Novi centri v fun: "+ noviCentri);
       }
+      System.out.println( Arrays.toString(noviCentri.toArray())
 
+);
       return noviCentri;
   }
   
-  
-
   	/* Metoda sešteva razdalje med starimi in novimi centri s pomočjo metode dobiRazdaljo */
   public static double dobiRazdaljoCenters(List<TockaXY> oldCenters, List<TockaXY> noviCentri) {
       double accumDist = 0;
@@ -242,9 +239,13 @@ public void start(Stage primaryStage) {
           double dist = dobiRazdaljoCenters(centers, noviCentri);
           centers = noviCentri;
           converged = dist == 0;
+          System.out.println("Kmenas znotraj: ");
+          for (int i = 0; i <centers.size(); i++) { 
+                  System.out.print(centers.get(i) + " "); 
+          }
           if (converged) {
               koncanoRacunanje = true;
-              System.out.println("Kmenas centri v fun: ");
+              System.out.println("\n" +"Kmenas centri v fun: ");
               for (int i = 0; i <centers.size(); i++) { 
                       System.out.print(centers.get(i) + " "); 
               }
@@ -252,37 +253,11 @@ public void start(Stage primaryStage) {
 
           }
       } while (!converged);
-    
+      "\n" +
       return centers;
   }
   
-// Metoda pobarva clusterje tako da v IdentityHashMap<> vstavi elemente iz barve in elemnte iz kmeans
- public static Map<String, TockaXY> pobarvajClusterje(List<TockaXY> kmeans, int k) {
-	 System.out.println(" Kmeans izgleda " +kmeans);
-	 
-	 List<String> barve = new ArrayList<>();
-		barve.add("Modra");
-		barve.add("Rumena");
-		barve.add("Zelena");
-		barve.add("Rdeca");
-		barve.add("Vijola");
-		barve.add("Crna");
-		barve.add("Oranzna");
-		barve.add("Roza");
-		barve.add("Rjava");
-		barve.add("Siva");
-		
-	 Map<String, TockaXY> barvniCluster = new IdentityHashMap<>(k);
-	 
-	  	for (int d = 0; d < k; d++) {
-		     barvniCluster.put(barve.get(d), kmeans.get(d));
-		     }	
-	  	for (Map.Entry<String, TockaXY> entry : barvniCluster.entrySet()) { 
-			 System.out.println("Key = " + entry.getKey() + ", Value = " + entry.getValue()); }
 
-	 return barvniCluster;
- }
-  
 /////////// VZPOREDNA VERZIJA /////////////// VZPOREDNA VERZIJA //////////////////// VZPOREDNA VERZIJA /////////////
 
 /* VZPOREDNA VERZIJA - ubistvu se vzporedno računa samo najbližji center za vsako točko */
@@ -291,7 +266,7 @@ public void start(Stage primaryStage) {
   
   private static final int NUM_THREADS = 15; 
   
-public static List<TockaXY> concurrentKmeans(List<TockaXY> centers, List<TockaXY> dataset, int k) {
+  public static List<TockaXY> concurrentKmeans(List<TockaXY> centers, List<TockaXY> dataset, int k) {
       boolean converged;
       do {
           List<TockaXY> noviCentri = concurrentNoviCentri(dataset, centers);
@@ -381,11 +356,7 @@ public static List<TockaXY> concurrentKmeans(List<TockaXY> centers, List<TockaXY
       return lists;
   }
 
-  
-  
-///////// MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	///////
-///////// MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	///////  
-///////// MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	///////
+
   
   public static int k;
   private static int id;
@@ -394,6 +365,9 @@ public static List<TockaXY> concurrentKmeans(List<TockaXY> centers, List<TockaXY
   public static long startTime;
   public static long stopTime;
   
+///////// MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	///////
+///////// MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	///////  
+///////// MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	MAIN	///////
   
   public static void main(String[] args) { 
 	if (args.length == 0) {
