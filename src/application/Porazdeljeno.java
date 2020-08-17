@@ -94,16 +94,7 @@ public class Porazdeljeno {
 	    	 	iz njih ustvarit seznam ki bo vrnjen (dataset). */
 	
 	// Inicializacija ArrayList in Array
-		public static List<TockaXY> dataset = new ArrayList<>();
-		public static TockaXY[] arrayTocke = new TockaXY[dataset.size()];
-
-		
-		
-		public static TockaXY[] listVarray (List<TockaXY> datset) {
-	    	arrayTocke=dataset.toArray( arrayTocke );
-	    	return arrayTocke;
-	    }
-		
+		public static List<TockaXY> dataset = new ArrayList<>();	
 	      
 	 public static List<TockaXY> podatki(String inputFile) throws Exception {
 	      List<TockaXY> dataset = new ArrayList<>();
@@ -120,7 +111,7 @@ public class Porazdeljeno {
 	              dataset.add(point);
 	      }
 	      br.close();
-	      System.out.println(" Data = " + dataset);
+//	      System.out.println(" Data = " + dataset);
 	      return dataset;
 	  }
 	
@@ -261,27 +252,29 @@ public class Porazdeljeno {
 	    size = MPI.COMM_WORLD.Size();
 		// Pot do datoteke z podatki
 //	      String inputFile = args[0];
-	    List<TockaXY> dataset = null;
-	      try {
-	          dataset = podatki(inputFile);
-	      } catch (Exception e) {
-	          System.err.println("ERROR: Ni mogoče brati datoteke " + inputFile);
-	          System.exit(-1); 
-	      }
+	   
 			
-	     if (id==root) {
+//	     if (id==root) {
 	    	 podatki = izListVFloat(dataset);
 	    	 nakljucniCentri= izListVFloat(randomCentri(k, 1, 10000));
-			 System.out.println("Tukaj " + id + "so podatki " + Arrays.toString(podatki));
-			 System.out.println("Tukaj " + id + "so centri " + Arrays.toString(nakljucniCentri));
-	     }
-   
+//			 System.out.println("Tukaj " + id + "so podatki " + Arrays.toString(podatki));
+//			 System.out.println("Tukaj " + id + "so centri " + Arrays.toString(nakljucniCentri));
+	    	 
+	    	 List<TockaXY> dataset = null;
+		      try {
+		          dataset = podatki(inputFile);
+		      } catch (Exception e) {
+		          System.err.println("ERROR: Ni mogoče brati datoteke " + inputFile);
+		          System.exit(-1); 
+		      }
+//	     }
+//   
 	    int stElNaProces = podatki.length; // število elemntov na proces * TODO = vsakemu en cluster za računat *
-	    float[] sendBuffer = podatki; //
+	    float[] sendBuffer = izListVFloat(dataset); //
 //	    float[] sendBufferC = nakljucniCentri; //
 //	    int[] sendBufferK = ; //
 	    //sendBuffer = new int [stElNaProces * size]; // [(število elementov na proces) * (število procesov)]
-
+	    System.out.println("sendBuffer pred posredovanjem: " + Arrays.toString(sendBuffer));
 	    
 	    float receiveBuffer[] = new float [stElNaProces]; // [število elemntov na proces]
 //	    float receiveBufferC[] = new float [k]; // [število elemntov na proces]
@@ -292,15 +285,30 @@ public class Porazdeljeno {
 		MPI.COMM_WORLD.Scatter(sendBuffer, 0, stElNaProces, MPI.FLOAT, receiveBuffer, 0, stElNaProces, MPI.FLOAT, root);
 //		MPI.COMM_WORLD.Scatter(sendBufferC, 0, stElNaProces, MPI.FLOAT, receiveBufferC, 0, stElNaProces, MPI.FLOAT, root);
 //		MPI.COMM_WORLD.Scatter(sendBufferK, 0, stElNaProces, MPI.INT, receiveBufferK, 0, stElNaProces, MPI.INT, root);
+	    System.out.println("sendBuffer pred procesi v Scatter: " + Arrays.toString(sendBuffer));
 
 		// Kar delajo vsi ostali razen root
 		if(id != root) {				
 			
-//			izListVFloat(kmeans2(izFloatVList(sendBufferC), izFloatVList(sendBuffer), k));
-//		    System.out.println("Tukaj " + id + "je buffer " + Arrays.toString(receiveBuffer));
-			izListVFloat(kmeans2(izFloatVList(nakljucniCentri), izFloatVList(podatki), k));
-		    System.out.println("Tukaj " + id + "je buffer " + Arrays.toString(receiveBuffer));
-		
+			// sendBuffer = podatki
+			receiveBuffer=izListVFloat(kmeans2(izFloatVList(nakljucniCentri), izFloatVList(podatki), k));
+			System.out.println(" ");
+			System.out.println("Tukaj " + id + " je reciveBuffer " + Arrays.toString(receiveBuffer));
+			System.out.println("Tukaj " + id + " je sendBuffer " + Arrays.toString(sendBuffer));
+			System.out.println("Tukaj " + id + " so nakljucni centri: ");
+			for (int i = 0; i < izFloatVList(nakljucniCentri).size(); i++) {
+				System.out.print(izFloatVList(nakljucniCentri).get(i));
+
+			}
+			System.out.println(" ");
+			System.out.println("Tukaj " + id + " so podatki ");
+			for (int i = 0; i < izFloatVList(podatki).size(); i++) {
+				System.out.print(izFloatVList(podatki).get(i));
+			}
+			
+			System.out.println(" ");
+			System.out.println("k: " + k);
+			
 		}
 		
 		// (array kjer so vsi podatki in se jih pošlje v New_receiveBuffer,_,_,_, New_receiveBuffer je tisti ki ga root potegne, _,_,_,_ )
@@ -308,7 +316,7 @@ public class Porazdeljeno {
 		
 		// sprintat rezultat
 		if(id==root) {			
-			System.out.println(" Končano : " );
+			System.out.println(" Končano New_receiveBuffer je: " );
 			System.out.println(Arrays.toString(New_receiveBuffer));		
 		}
 		
