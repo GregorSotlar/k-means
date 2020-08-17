@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de" lang="de-de" style="height:100%;width:100%;margin:0;padding:0">
+
+<!--
+Based on http://wiki.openstreetmap.org/wiki/DE:Karte_in_Webseite_einbinden
+-->
+
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+  <meta http-equiv="content-script-type" content="text/javascript" />
+  <meta http-equiv="content-style-type" content="text/css" />
+  <meta http-equiv="content-language" content="de" />
+  <script type="text/javascript" src="http://www.openlayers.org/api/OpenLayers.js"></script>
+  <script type="text/javascript" src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+
+<script type="text/javascript">
+var jumpTo = function(lon, lat, zoom)
+{
+    var x = Lon2Merc(lon);
+    var y = Lat2Merc(lat);
+    map.setCenter(new OpenLayers.LonLat(x, y), zoom);
+    return false;
+}
+function Lon2Merc(lon)
+{
+    return 20037508.34 * lon / 180;
+}
+function Lat2Merc(lat)
+{
+    var PI = 3.14159265358979323846;
+    lat = Math.log(Math.tan( (90 + lat) * PI / 360)) / (PI / 180);
+    return 20037508.34 * lat / 180;
+}
+function ccCallback(pId)
+{
+    ccApp.callback(pId);
+}
+function addMarker(pId,lon, lat, popupContentHTML)
+
+{
+    if (popupContentHTML != null)
+    {
+        popupContentHTML = "<span onclick='ccCallback(\""+pId+"\")'>" + popupContentHTML + "</a>";
+    }
+    var layer = layer_markers;
+    var ll = new OpenLayers.LonLat(Lon2Merc(lon), Lat2Merc(lat));
+    var feature = new OpenLayers.Feature(layer, ll);
+	  feature.closeBox = true;
+	  feature.popupClass = OpenLayers.Class(OpenLayers.Popup.FramedCloud, {minSize: new OpenLayers.Size(150, 50) } );
+    feature.data.popupContentHTML = popupContentHTML;
+    feature.data.overflow = "hidden";
+    var marker = new OpenLayers.Marker(ll);
+    marker.feature = feature;
+    if (popupContentHTML != null)
+    {
+        var markerClick = function(evt)
+        {
+            if (this.popup == null)
+            {
+                this.popup = this.createPopup(this.closeBox);
+                map.addPopup(this.popup);
+                this.popup.show();
+            }
+           else
+           {
+              this.popup.toggle();
+            }
+            OpenLayers.Event.stop(evt);
+       };
+   }
+    marker.events.register("mousedown", feature, markerClick);
+    layer.addMarker(marker);
+    m_markers[pId]  = marker;
+    if (popupContentHTML != null)
+    {
+        var vPopup = feature.createPopup(feature.closeBox);
+       map.addPopup(vPopup);
+        m_popups[pId] = vPopup;
+    }
+}
+function removeMarker(pId)
+{
+    var marker = m_markers[pId];
+    if (marker != null)
+    {
+         layer_markers.removeMarker(marker);
+    }
+    var vPopup = m_popups[pId];
+    if (vPopup != null)
+    {
+        map.removePopup(vPopup);
+    }
+}
+function getCycleTileURL(bounds)
+{
+   var res = this.map.getResolution();
+   var x = Math.round((bounds.left - this.maxExtent.left) / (res * this.tileSize.w));
+   var y = Math.round((this.maxExtent.top - bounds.top) / (res * this.tileSize.h));
+   var z = this.map.getZoom();
+   var limit = Math.pow(2, z);
+   if (y < 0 || y >= limit)
+   {
+     return null;
+   }
+   else
+   {
+     x = ((x % limit) + limit) % limit;
+     return this.url + z + "/" + x + "/" + y + "." + this.type;
+   }
+}
+
+var map;
+var layer_mapnik;
+var layer_tah;
+var layer_markers;
+var m_markers = new Array();
+var m_popups = new Array();
+
+function drawmap()
+{
+    OpenLayers.Lang.setCode('de');
+    var lon = 0;
+    var lat = 0;
+    var zoom = 10;
+    map = new OpenLayers.Map('map',
+    {
+        projection: new OpenLayers.Projection("EPSG:900913"),
+        displayProjection: new OpenLayers.Projection("EPSG:4326"),
+        controls: [
+            new OpenLayers.Control.Navigation(),
+            new OpenLayers.Control.LayerSwitcher(),
+            new OpenLayers.Control.PanZoomBar()],
+        maxExtent:
+            new OpenLayers.Bounds(-20037508.34,-20037508.34,
+                                    20037508.34, 20037508.34),
+        numZoomLevels: 18,
+        maxResolution: 156543,
+        units: 'meters'
+    });
+    layer_mapnik = new OpenLayers.Layer.OSM.Mapnik("Mapnik");
+    layer_markers = new OpenLayers.Layer.Markers("Address", { projection: new OpenLayers.Projection("EPSG:4326"),
+                                                  visibility: true, displayInLayerSwitcher: false });
+    map.addLayers([layer_mapnik, layer_markers]);
+    // position
+    // jumpTo(lon, lat, zoom);
+    // Position des Markers
+    // addMarker(layer_markers, 6.641389, 49.756667,"SERVUS 1");
+    // addMarker(layer_markers, 6.741389, 49.856667,"SERVUS 2");
+}
+</script>
+
+</head>
+<body onload="drawmap()" topmargin="0" leftmargin="0" rightmargin="0" bottommargin="0" style="height:100%;width:100%;margin:0;padding:0">
+  <div id="map" style="height:100%;width:100%">
+  </div>
+</body>
+</html>
+You see that there are two functions "jumpTo" and "addMarker" which are designed to be called from outside.
