@@ -61,17 +61,10 @@ public void start(Stage primaryStage) {
 
 	private static boolean koncanoRacunanje = false;
 	private static boolean podatkiVDataset = false;
-//	private static boolean noviCentri = false;
 
 	public static List<TockaXY> dataset = new ArrayList<>();
 	public static List<TockaXY> randomCentri = new ArrayList<>();
 	public static List<TockaXY> koncniCentri = new ArrayList<>();
-
-//	static TockaXY[] arrayTocke;
-//	static TockaXY[] arrayCentri;
-	public static String [] argumenti;
-	
-//  private static final int mnogokratnik = 200;   // Spremenljivka pomnoži število podatkov
 
   		/* Class TockaXY predstavlja koordinate vskake točke */
       public static class TockaXY {
@@ -113,8 +106,7 @@ public void start(Stage primaryStage) {
           return index;
       }
       
-	 
-	 
+	  
   	/* Metoda ki dobi seznam točk (points) in vsako točko v seznamu prišteva prejšnjim po X in po Y in potem zračuna njihovo povprečje. 
   	   Vrne središčno točko tega seznama, rabimo za izračun novih centrov */
       public static TockaXY povprecje(List<TockaXY> points) {
@@ -127,8 +119,7 @@ public void start(Stage primaryStage) {
           }
           return new TockaXY(accumX / points.size(), accumY / points.size()); 
       }
-      
-     
+          
       // Metoda za zapisat x in y v string
     @Override
       public String toString() {
@@ -149,8 +140,7 @@ public void start(Stage primaryStage) {
       /* Dobi pot do vhodne datoteke in vrne seznam točk. BufferedReader prebere vsebino datoteke in jo vstavi v String line, ki ga razedlimo z ","
    	 	in pretvorimo v tokene (torej en token je levo od vejice drugi desno) katere uporabimo za ustavrit novo instanco TockaXY
    	 	iz njih ustvarit seznam ki bo vrnjen (dataset). */
- 
-      
+   
       public static List<TockaXY> podatki(String inputFile) throws Exception {
       List<TockaXY> dataset = new ArrayList<>();
       BufferedReader br = new BufferedReader(new FileReader(inputFile));
@@ -172,8 +162,6 @@ public void start(Stage primaryStage) {
   }
   
 
-    
- 
   	/* Inicializiramo seznam random centralnih točk in jih damo v Array (n= število clusterjev) */
   public static List<TockaXY> randomCentri(int n, int lowerBound, int upperBound) {
       List<TockaXY> centers = new ArrayList<>(n);
@@ -189,7 +177,6 @@ public void start(Stage primaryStage) {
   }
 
 
-  
   	/* JEDRO
 	 Najprej dodelimo seznam iz seznamov (clusters), ki ga inicializiramo kot praznega (centers.size()). 
 	 Nato (2. for loop) za vsak podatek (točko) iz dataset dobimo index najbližjega centra z metodo najblizjaTIndex,
@@ -253,7 +240,6 @@ public void start(Stage primaryStage) {
 
           }
       } while (!converged);
-      "\n" +
       return centers;
   }
   
@@ -428,7 +414,7 @@ public void start(Stage primaryStage) {
       }
    
    /////////// PORAZDELJEN DEL//////////////  MPI ///////////////
-   /////////// PORAZDELJEN DEL//////////////  MPI //////////////////////////////////////////////////////
+   /////////// PORAZDELJEN DEL//////////////  MPI //////////////// NE DELA ŠE /////////////////
    /////////// PORAZDELJEN DEL//////////////  MPI ///////////////
    else if (nacinRacunanja.equals("porazdeljeno")) {
 	   System.out.println("Porazdeljena verzija");
